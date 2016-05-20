@@ -3,12 +3,22 @@ from flask import Flask, request
 app = Flask(__name__)
 
 
-@app.route('/test', methods=['POST', 'GET'])
-def login():
-    if request.method == 'POST':
-        return 'Worked POST'
-    else:
-        return 'Worked GET'
+@app.route('/')
+def show_all():
+    return "Home Page"
+
+
+@app.route('/new', methods=['GET', 'POST'])
+def new():
+    json_data = request.get_json()
+    data = Data(**json_data)
+    return data.name + " " + data.age
+
+
+class Data:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
 
 
 if __name__ == '__main__':
