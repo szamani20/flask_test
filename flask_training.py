@@ -63,6 +63,7 @@ def add_user():
 
 @app.route('/delete_user', methods=['POST'])
 def delete_user():
+    # must invalidate channels!
     username = request.get_data().decode('UTF-8')
     if User.query.filter_by(username=username).first() is not None:
         db.session.delete(User.query.filter_by(username=username).first())
@@ -90,6 +91,7 @@ def get_user_by_username():
 
 @app.route('/update_user_channel_list', methods=['POST'])
 def update_user_channel_list():
+    # new channels are added, but deleted channels are not deleted!
     json_data = request.get_json()
     updated_user = User(**json_data)
     if User.query.filter_by(username=updated_user.username).first() is not None:
@@ -97,7 +99,6 @@ def update_user_channel_list():
         user.channel_list = updated_user.channel_list
         db.session.commit()
         add_user_channel_list(user.channel_list)
-        # new channels are added, but deleted channels are not deleted !
         return "User " + updated_user.username + " channel list updated"
     return "No such user"
 
@@ -115,6 +116,7 @@ def add_channel():
 
 @app.route('/delete_channel', methods=['POST'])
 def delete_channel():
+    # must invalidate user!
     channel_id = request.get_data().decode('UTF-8')
     if Channel.query.filter_by(channel_id=channel_id).first() is not None:
         db.session.delete(Channel.query.filter_by(channel_id=channel_id).first())
