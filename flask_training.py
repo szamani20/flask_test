@@ -13,14 +13,17 @@ class User(db.Model):
     id = db.Column('id', db.Integer, primary_key=True)
     username = db.Column(db.String(100))
     password = db.Column(db.String(50))
+    channel_list = db.Column(db.PickleType())
 
-    def __init__(self, username, password):
+    def __init__(self, username, password, channel_list):
         self.username = username
         self.password = password
+        self.channel_list = channel_list
 
     def dump(self):
         return {'username': self.username,
-                'password': self.password}
+                'password': self.password,
+                'channel_list': self.channel_list}
 
 
 class Channel(db.Model):
@@ -40,7 +43,7 @@ class Channel(db.Model):
 @app.route('/', methods=['GET', 'POST'])
 def home_page():
     for user in User.query.all():
-        print(user.username, user.password)
+        print(user.username, user.password, user.channel_list)
     return "Homepage"
 
 
@@ -52,17 +55,19 @@ def add_user():
         return "Username already taken"
     db.session.add(user)
     db.session.commit()
-    return "User " + user.username + " with Password " + user.password + " created"
+    add_user_channel_list(user.channel_list)
+    return "User " + user.username + " with Password " + \
+           user.password + \
+           " created"
 
 
 @app.route('/delete_user', methods=['POST'])
 def delete_user():
-    json_data = request.get_json()
-    user = User(**json_data)
-    if User.query.filter_by(username=user.username).first() is not None:
-        db.session.delete(User.query.filter_by(username=user.username).first())
+    username = request.get_data().decode('UTF-8')
+    if User.query.filter_by(username=username).first() is not None:
+        db.session.delete(User.query.filter_by(username=username).first())
         db.session.commit()
-        return "User " + user.username + " with password " + user.password + " deleted"
+        return "User " + username + " deleted"
     return "No such user"
 
 
@@ -96,12 +101,11 @@ def add_channel():
 
 @app.route('/delete_channel', methods=['POST'])
 def delete_channel():
-    json_data = request.get_json()
-    channel = Channel(**json_data)
-    if Channel.query.filter_by(channel_id=channel.channel_id).first() is not None:
-        db.session.delete(Channel.query.filter_by(channel_id=channel.channel_id).first())
+    channel_id = request.get_data().decode('UTF-8')
+    if Channel.query.filter_by(channel_id=channel_id).first() is not None:
+        db.session.delete(Channel.query.filter_by(channel_id=channel_id).first())
         db.session.commit()
-        return "Channel " + channel.channel_id + " with name " + channel.channel_name + " deleted"
+        return "Channel " + channel_id + " deleted"
     return "No such channel"
 
 
@@ -120,6 +124,16 @@ def get_channel_by_channel_id():
         channel = Channel.query.filter_by(channel_id=channel_id).first()
         return json.dumps(channel.dump())
     return "No such channel"
+
+
+def add_user_channel_list(channels):
+    for channel in channels:
+        channel = Channel(**channel)
+        if Channel.query.filter_by(channel_id=channel.channel_id).first() is not None:
+            continue
+        print("new channel")
+        db.session.add(channel)
+        db.session.commit()
 
 
 if __name__ == '__main__':
