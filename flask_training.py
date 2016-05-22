@@ -88,6 +88,20 @@ def get_user_by_username():
     return "No such user"
 
 
+@app.route('/update_user_channel_list', methods=['POST'])
+def update_user_channel_list():
+    json_data = request.get_json()
+    updated_user = User(**json_data)
+    if User.query.filter_by(username=updated_user.username).first() is not None:
+        user = User.query.filter_by(username=updated_user.username).first()
+        user.channel_list = updated_user.channel_list
+        db.session.commit()
+        add_user_channel_list(user.channel_list)
+        # new channels are added, but deleted channels are not deleted !
+        return "User " + updated_user.username + " channel list updated"
+    return "No such user"
+
+
 @app.route('/add_channel', methods=['POST'])
 def add_channel():
     json_data = request.get_json()
