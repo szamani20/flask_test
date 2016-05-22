@@ -76,7 +76,11 @@ def get_all_users():
 
 @app.route('/get_user_by_username', methods=['POST'])
 def get_user_by_username():
-    pass
+    username = request.get_data().decode('UTF-8')
+    if User.query.filter_by(username=username).first() is not None:
+        user = User.query.filter_by(username=username).first()
+        return json.dumps(user.dump())
+    return "No such user"
 
 
 @app.route('/add_channel', methods=['POST'])
@@ -111,7 +115,11 @@ def get_all_channels():
 
 @app.route('/get_channel_by_channel_id', methods=['POST'])
 def get_channel_by_channel_id():
-    pass
+    channel_id = request.get_data().decode('UTF-8')
+    if Channel.query.filter_by(channel_id=channel_id).first() is not None:
+        channel = Channel.query.filter_by(channel_id=channel_id).first()
+        return json.dumps(channel.dump())
+    return "No such channel"
 
 
 if __name__ == '__main__':
