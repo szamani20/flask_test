@@ -3,7 +3,7 @@ import json
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///login_data.sqlite3'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://$OPENSHIFT_POSTGRESQL_DB_HOST:$OPENSHIFT_POSTGRESQL_DB_PORT'
 app.config['SECRET_KEY'] = "random string"
 
 db = SQLAlchemy(app)
