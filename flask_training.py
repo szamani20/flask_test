@@ -3,7 +3,8 @@ import json
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admingsryx9h:TxHcp-e35znG@127.13.82.130:5432'
+# that's my password of course :D
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:k@localhost:5432/postgres'
 app.config['SECRET_KEY'] = "random string"
 
 db = SQLAlchemy(app)
